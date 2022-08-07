@@ -2,6 +2,8 @@ package com.eyubero.fumblebook.di
 
 import com.eyubero.fumblebook.BuildConfig
 import com.eyubero.fumblebook.provider.ApiProvider
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,9 +24,14 @@ class ProviderModule {
 
     @Singleton
     @Provides
-    fun providesRetrofit(@Named("BaseUrl") baseUrl: HttpUrl): Retrofit {
+    @Named("Moshi")
+    fun providesMoshi(): Moshi =  Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+
+    @Singleton
+    @Provides
+    fun providesRetrofit(@Named("BaseUrl") baseUrl: HttpUrl, @Named("Moshi") moshi: Moshi): Retrofit {
         return Retrofit.Builder()
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .baseUrl(baseUrl)
             .build()
     }
